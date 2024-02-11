@@ -4,29 +4,29 @@ import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { Pokemon, getPokemonDetails } from '@/api/pokeapi'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const [details, setDetails] = useState<Pokemon>()
   const [isFavorite, setIsFavorite] = useState(false)
   const navigation = useNavigation()
 
+  const { data } = useQuery({
+    queryKey: ['pokemon', id],
+    queryFn: () => getPokemonDetails(+id!),
+    // keepPreviousData: removed in favor of `placeholderData` identity function, 
+    // reference: https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5#removed-keeppreviousdata-in-favor-of-placeholderdata-identity-function
+    placeholderData: keepPreviousData
+    // onSuccess: is not longer supported, so we will depend of a useEffect below
+    // reference: https://tanstack.com/query/latest/docs/framework/react/guides/migrating-to-react-query-4#onsuccess-is-no-longer-called-from-setquerydata
+  })
+
   useEffect(() => {
-    if (!!id) {
-      const load = async () => {
-        const details = await getPokemonDetails(+id)
-        setDetails(details)
-        navigation.setOptions({
-          title: details.name.charAt(0).toUpperCase() + details.name.slice(1)
-        })
+    navigation.setOptions({
+      title: data.name.charAt(0).toUpperCase() + data.name.slice(1)
+    })
+  }, [data])
 
-        const isFavorite = await AsyncStorage.getItem(`favorite-${id}`)
-        setIsFavorite(isFavorite === 'true')
-      };
-
-      load();
-    }
-  }, [id])
 
   useEffect(() => {
     navigation.setOptions({
@@ -46,18 +46,18 @@ const Page = () => {
   return (
     <View style={{ padding: 10 }}>
       {
-        details && (
+        data && (
           <>
             <View style={[styles.card, { alignItems: 'center' }]}>
-              <Image source={{ uri: details.sprites.front_default }} style={{ width: 200, height: 200 }} />
+              <Image source={{ uri: data.sprites.front_default }} style={{ width: 200, height: 200 }} />
               <Text style={styles.name}>
-                #{details.id} {details.name}
+                #{data.id} {data.name}
               </Text>
             </View>
             <View style={styles.card}>
               <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Stats: </Text>
               {
-                details.stats.map((item: any) => (
+                data.stats.map((item: any) => (
                   <Text key={item.stat.name}>
                     {item.stat.name}: {item.base_stat}
                   </Text>
