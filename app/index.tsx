@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { Link } from 'expo-router';
 import { Pokemon, getPokemon } from '@/api/pokeapi';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
+
 
 const Page = () => {
-  const [pokemon, setPokemon] = useState<Pokemon[]>([])
-
-  useEffect(() => {
-    const load = async () => {
-      const result = await getPokemon();
-      setPokemon(result)
-    }
-    load();
-  }, [])
+  const pokemonQuery = useQuery<Pokemon[]>({
+    queryKey: ['pokemon'],
+    queryFn: () => getPokemon()
+  })
 
   return (
     <ScrollView>
+      {pokemonQuery.isLoading && <ActivityIndicator style={{ marginTop: 3 }} />}
       {
-        pokemon.map((pokemon) => (
+        pokemonQuery.data && pokemonQuery.data.map((pokemon) => (
           <Link href={`/(pokemon)/${pokemon.id}`} key={pokemon.id} asChild>
             <TouchableOpacity>
               <View style={styles.item}>

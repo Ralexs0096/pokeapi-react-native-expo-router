@@ -9,6 +9,7 @@ export interface Pokemon {
 }
 
 export const getPokemon = async (limit = 150) => {
+  await delay(200 + Math.floor(Math.random() * 2000));
   const response = await fetch(
     `https://pokeapi.co/api/v2/pokemon?limit=${limit}`
   );
@@ -28,4 +29,10 @@ export const getPokemonDetails = async (id: number) => {
 
   const data = await response.json();
   return data;
+};
+
+const delay = (time: number) => {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
 };
