@@ -11,20 +11,24 @@ const Page = () => {
   const [isFavorite, setIsFavorite] = useState(false)
   const navigation = useNavigation()
 
-  const { data } = useQuery({
+  const { data } = useQuery<Pokemon>({
     queryKey: ['pokemon', id],
     queryFn: () => getPokemonDetails(+id!),
     // keepPreviousData: removed in favor of `placeholderData` identity function, 
     // reference: https://tanstack.com/query/v5/docs/framework/react/guides/migrating-to-v5#removed-keeppreviousdata-in-favor-of-placeholderdata-identity-function
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
     // onSuccess: is not longer supported, so we will depend of a useEffect below
     // reference: https://tanstack.com/query/latest/docs/framework/react/guides/migrating-to-react-query-4#onsuccess-is-no-longer-called-from-setquerydata
+    refetchOnMount: false
   })
 
+  // onSuccess - latest tankStack query implementation
   useEffect(() => {
-    navigation.setOptions({
-      title: data.name.charAt(0).toUpperCase() + data.name.slice(1)
-    })
+    if (data) {
+      navigation.setOptions({
+        title: data.name.charAt(0).toUpperCase() + data.name.slice(1)
+      })
+    }
   }, [data])
 
 

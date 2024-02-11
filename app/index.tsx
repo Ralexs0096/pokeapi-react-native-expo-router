@@ -9,7 +9,8 @@ import { useQuery } from '@tanstack/react-query';
 const Page = () => {
   const pokemonQuery = useQuery<Pokemon[]>({
     queryKey: ['pokemon'],
-    queryFn: () => getPokemon()
+    queryFn: () => getPokemon(),
+    refetchOnMount: false
   })
 
   return (
