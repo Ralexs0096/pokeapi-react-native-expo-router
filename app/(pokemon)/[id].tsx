@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { storage } from '@/storage/mmkv';
 import { useMMKVBoolean } from 'react-native-mmkv';
+import Animated, { FadeIn, FadeInDown, FlipInEasyX } from 'react-native-reanimated';
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -53,13 +54,13 @@ const Page = () => {
         data && (
           <>
             {isFavorite}
-            <View style={[styles.card, { alignItems: 'center' }]}>
+            <Animated.View style={[styles.card, { alignItems: 'center' }]} entering={FadeIn.delay(200)}>
               <Image source={{ uri: data.sprites.front_default }} style={{ width: 200, height: 200 }} />
-              <Text style={styles.name}>
+              <Animated.Text style={styles.name} entering={FlipInEasyX.delay(300)}>
                 #{data.id} {data.name}
-              </Text>
-            </View>
-            <View style={styles.card}>
+              </Animated.Text>
+            </Animated.View>
+            <Animated.View style={styles.card} entering={FadeInDown.delay(500)}>
               <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Stats: </Text>
               {
                 data.stats.map((item: any) => (
@@ -68,7 +69,7 @@ const Page = () => {
                   </Text>
                 ))
               }
-            </View>
+            </Animated.View>
           </>
         )
       }
