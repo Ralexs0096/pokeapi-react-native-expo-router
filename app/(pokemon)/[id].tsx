@@ -1,14 +1,15 @@
 import { View, Text, StyleSheet, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useLocalSearchParams, useNavigation } from 'expo-router'
 import { Pokemon, getPokemonDetails } from '@/api/pokeapi'
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { storage } from '@/storage/mmkv';
+import { useMMKVBoolean } from 'react-native-mmkv';
 
 const Page = () => {
   const { id } = useLocalSearchParams<{ id: string }>()
-  const [isFavorite, setIsFavorite] = useState(false)
+  const [isFavorite, setIsFavorite] = useMMKVBoolean(`favorite-${id}`, storage)
   const navigation = useNavigation()
 
   const { data } = useQuery<Pokemon>({
@@ -43,8 +44,7 @@ const Page = () => {
   }, [isFavorite])
 
   const toggleFavorite = async () => {
-    await AsyncStorage.setItem(`favorite-${id}`, isFavorite ? 'false' : 'true')
-    setIsFavorite(prev => !prev)
+    setIsFavorite(isFavorite ? false : true)
   }
 
   return (
@@ -52,6 +52,7 @@ const Page = () => {
       {
         data && (
           <>
+            {isFavorite}
             <View style={[styles.card, { alignItems: 'center' }]}>
               <Image source={{ uri: data.sprites.front_default }} style={{ width: 200, height: 200 }} />
               <Text style={styles.name}>
