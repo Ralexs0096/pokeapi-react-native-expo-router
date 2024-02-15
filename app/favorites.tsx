@@ -10,7 +10,11 @@ import { useQueries } from '@tanstack/react-query';
 import { storage } from '@/storage/mmkv';
 import { getPokemonDetails, Pokemon } from '@/api/pokeapi';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeIn, SlideOutLeft } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  LinearTransition,
+  SlideOutLeft
+} from 'react-native-reanimated';
 
 const Page = () => {
   const [keys, setKeys] = useState(storage.getAllKeys());
@@ -45,6 +49,8 @@ const Page = () => {
     <ScrollView>
       {data.map(({ name, id, sprites }, index) => (
         <Animated.View
+          key={id}
+          layout={LinearTransition.delay(200)}
           entering={FadeIn.delay(100 * index)}
           exiting={SlideOutLeft.duration(200)}
           style={styles.item}
